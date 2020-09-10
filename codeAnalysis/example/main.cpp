@@ -236,7 +236,7 @@ int main(int argc,char *argv[]){
     // 从输入文件的位置决定输出文件目录
     strcpy(outFile,inFile);
     int len=strlen(outFile)-1;
-    while(len>0 && outFile[len]!='\\') --len;
+    while(len>0 && outFile[len]!='\\' && outFile[len]!='/') --len;
     strcpy(outFile+len+1,"result.txt\0");
 
     if(work(inFile,outFile)==0)
