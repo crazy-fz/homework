@@ -34,13 +34,14 @@ public:
         del(root);
         delete root;
     }
+
+    /**
+     * @param type    插入的类型 0: 关键字，1: 操作符号
+     * @param i    当前下标
+     * @param len    string长度
+     * @param cur    当前所处字典树结点
+     */
     void insert(int type,string &s,int i,int len,node *cur){
-        /**
-         *  @parame type    插入的类型 0: 关键字，1: 操作符号
-         * @parame i    当前下标
-         * @parame len    string长度
-         * @parame cur    当前所处字典树结点
-         */
         if(i==len){
             cur->type=type;
             return ;
@@ -54,18 +55,25 @@ public:
     }
 
 
+    /**
+     * @param s    string
+     * @param i    当前下标
+     * @param len    string长度
+     * @param cur    当前所处字典树结点
+     * 
+     * @return    pair<int,int>{类型，最后匹配成功的下标}
+     */
     pair<int,int> query(const string &s,int i,int len,node *cur){
-        /**
-         * @parame i    当前下标
-         * @parame len    string长度
-         * @parame cur    当前所处字典树结点
-         * 
-         * @return    {类型，最后匹配成功的下标}
-         */
         if(cur->son[s[i]]==nullptr || i==len)
             return {cur->type,i-1};
         else return query(s,i+1,len,cur->son[s[i]]);
     }
+
+    /**
+     * @param s    string
+     * 
+     * @return    pair<int,int>{类型，最后匹配成功的下标} 
+     */
     pair<int,int> query(const string &s){
         return query(s,0,s.length(),root);
     }
