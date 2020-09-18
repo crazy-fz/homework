@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>texts/isnum.txt</file>
+        <file>texts/keywords.txt</file>
+        <file>texts/operators.txt</file>
+        <file>texts/specialCharacters.txt</file>
+    </qresource>
+</RCC>
