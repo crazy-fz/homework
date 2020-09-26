@@ -93,13 +93,22 @@ std::string solution:: work(const std::string &s){
             ++cur;
             continue;
         }
-
-        else if(s[cur]=='\"'){
+        // 特判.3e-5这种特殊浮点数
+        if(s[cur]=='.'){
+            if(cur+1<len && s[cur+1]<='9' && s[cur+1]>='0'){
+                // 要么是数字组成部分，要么是在e后面的-号
+                while(cur<len && ( isnum.find(s[cur])!=isnum.end()
+                    || (s[cur]=='-' && (cur==0||s[cur-1]=='e'||s[cur-1]=='E')))) fout<<s[cur++];
+                fout<<"\t数字\n";
+                continue;
+            }
+        }
+        if(s[cur]=='\"'){
             fout<<s[cur];
             while(cur<len){
                 ++cur;
                 fout<<s[cur];
-                if(s[cur]=='\"') break;
+                if(s[cur]=='\"' && s[cur-1]!='\\') break;
             }
             fout<<"\t字符串常量\n";
             ++cur;
@@ -146,9 +155,10 @@ std::string solution:: work(const std::string &s){
             }
 
             // 数字
-            else if(s[cur]>='0' && s[cur]<='9'){
-                while(cur<len && ( (s[cur]>='0' && s[cur]<='9') || isnum.find(s[cur])!=isnum.end()
-                    || (s[cur]=='-' && cur<s.length()-1 && s[cur+1]>='0' && s[cur+1]<='9'))) fout<<s[cur++];
+            else if((s[cur]>='0' && s[cur]<='9') || s[cur]=='-'){
+                fout<<s[cur++];
+                while(cur<len && ( isnum.find(s[cur])!=isnum.end()
+                    || (s[cur]=='-' && (cur==0||s[cur-1]=='e'||s[cur-1]=='E')))) fout<<s[cur++];
                 fout<<"\t数字\n";
             }
 
