@@ -1,5 +1,4 @@
 #include "trie.h"
-
 Trie::Trie(){
     root=new node();
 }
@@ -9,12 +8,20 @@ Trie::~Trie(){
 }
 
 void Trie::del(node *cur){
+    /*
     for(int i=0;i<128;++i){
         if(cur->son[i]!=nullptr){
             del(cur->son[i]);
-            delete(cur->son[i]);
+            delete cur->son[i];
         }
     }
+*/
+
+    for(auto &i:cur->son){
+        del(i.second);
+        delete i.second;
+    }
+
 }
 
 void Trie::insert(int type,const std::string &s,std::string::size_type i,std::string::size_type len,node *cur){
@@ -22,9 +29,9 @@ void Trie::insert(int type,const std::string &s,std::string::size_type i,std::st
         cur->type=type;
         return ;
     }
-    if(cur->son[int(s[i])]==nullptr)
-        cur->son[int(s[i])]=new node();
-    insert(type,s,i+1,len,cur->son[int(s[i])]);
+    if(cur->son[s[i]]==nullptr)
+        cur->son[s[i]]=new node();
+    insert(type,s,i+1,len,cur->son[s[i]]);
 }
 
 void Trie::insert(int type,const std::string &s){
@@ -33,9 +40,10 @@ void Trie::insert(int type,const std::string &s){
 }
 
 std::pair<int,int> Trie::query(const std::string &s,std::string::size_type i,std::string::size_type len,node *cur){
-    if(cur->son[int(s[i])]==nullptr || i==len)
+    auto it=cur->son.find(s[i]);
+    if(it==cur->son.end() || i==len)
         return {cur->type,i-1};
-    else return query(s,i+1,len,cur->son[int(s[i])]);
+    else return query(s,i+1,len,it->second);
 }
 
 std::pair<int,int> Trie::query(const std::string &s){

@@ -8,25 +8,31 @@
 class solution
 {
 public:
-    std::string result[2]={"关键字","运算符号"};
-    std::set<char> sp;
-    std::set<char> isnum;
-    Trie *t;
 
     /**
-     * @param inFileName   输入文件位置
-     * @param outFileName  输出文件保存位置
+     * @param s   source code
      *
-     * @retval 0    success
-     * @retval 1    failed
+     * @return    analysis
      */
-    int work(const QString &inFileName,const QString &outFileName);
+    std::string work(const std::string &s);
+
+    /**
+     * @return   compressed code
+     */
+    std::string compressCode(const std::string &s);
 
     solution();
     virtual ~solution();
+
+protected:
+    const std::string result[2]={"关键字","运算符号"};
+    std::set<char> sp; // special words
+    std::set<char> isnum; // numberic words
+    Trie *t;
+
 private:
     /**
-     * @brief 加载qrc里的字典
+     * @brief load dic files in qrc
      * @retval 0    success
      * @retval 1    failed
      */

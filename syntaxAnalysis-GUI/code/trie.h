@@ -2,17 +2,18 @@
 #define TRIE_H
 #include <string>
 #include <utility>
-
+#include <map>
 // 字典树，存关键字、运算符号
 class Trie{
 public:
     struct node{
         int type;
-        node *son[128];
+        std::map<char,node*> son;
+//        node *son[128];
         node() {
+//            for(int i=0;i<128;++i)
+//                son[i]=nullptr;
             type=-1;
-            for(int i=0;i<128;++i)
-                son[i]=nullptr;
         }
     };
     node *root;
@@ -24,7 +25,7 @@ public:
     void insert(int type,const std::string &s);
 
     /**
-     * @param s    string
+     * @param s    string of the query
      *
      * @return    pair<int,int>{类型，最后匹配成功的下标}
      */
@@ -40,7 +41,7 @@ private:
     void insert(int type,const std::string &s,std::string::size_type i,std::string::size_type len,node *cur);
 
     /**
-     * @param s    string
+     * @param s    string of the query
      * @param i    当前下标
      * @param len    string长度
      * @param cur    当前所处字典树结点

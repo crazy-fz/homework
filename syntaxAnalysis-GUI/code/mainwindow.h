@@ -14,12 +14,29 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    virtual ~MainWindow() override;
+
+protected:
+    /**
+     * @brief resizes textEdits and labels after resizing the window
+     */
+    virtual void resizeEvent(QResizeEvent *event) override;
+
 private slots:
-    void on_pushButton_clicked();
+    /**
+     * @brief update output after changing text
+     */
+    void on_codeText_textChanged();
+
+    void on_loadFile_triggered();
+
+    void on_saveFile_triggered();
+
+    void on_conpressSave_triggered();
 
 private:
     Ui::MainWindow *ui;
     solution *sol;
+    QString defaultSavePath;
 };
 #endif // MAINWINDOW_H

@@ -2,9 +2,8 @@
 #include <fstream>
 #include <QIODevice>
 #include <QFile>
-#include <QTextStream>
-#include <QTextCodec>
 #include <QDebug>
+#include <sstream>
 
 solution::solution(){
     t=new Trie();
@@ -83,34 +82,11 @@ int solution::loadQrc(){
     return 0;
 }
 
-int solution:: work(const QString &inFileName,const QString &outFileName){
-    std::string s;
-    QFile file;
-
-    file.setFileName(inFileName);
-    if(!file.open(QIODevice::ReadOnly|QIODevice::Text)){
-        qDebug()<<"can't load"<<inFileName;
-        return 1;
-    }
-    else{
-        QTextStream fin(&file);
-        QString qs=fin.readAll();
-        // 这里虽然没有把中文转成gbk，但是中文编码是2倍英文编码长度，后续可以正常处理。
-        s=qs.toStdString();
-        /*转成中文
-        QTextCodec *code=QTextCodec::codecForName("GBK");
-        s=code->fromUnicode(qs).data();
-        cout<<s<<endl;
-        */
-    }
-
-    std::ofstream fout;
-    QTextCodec *code=QTextCodec::codecForName("GBK"); // 支持写入到中文路径
-    fout.open(code->fromUnicode(outFileName).data(),std::ios::out);
+std::string solution:: work(const std::string &s){
+    std::stringstream fout;
     std::string::size_type cur=0;
     std::string::size_type len=s.length();
 
-    // 匹配，以utf8写入文件
     while(cur<len){
         // 过滤空字符、换行符
         if(isspace(s[cur])){
@@ -194,14 +170,93 @@ int solution:: work(const QString &inFileName,const QString &outFileName){
                 fout<<"\t符号常量\n";
             }
 
-            // 标识符
+            // 如果不是其他任意类型，就是标识符或无法识别的符号
             else {
+                auto pre=cur;
                 while(cur<len && (isalnum(s[cur]) || s[cur]=='_')) fout<<s[cur++];
+                if(pre==cur){
+                    fout<<s[cur]<<"\t 无法识别的错误语法！";//这里暂时先这样处理，后续可能增加定位提示
+                    break;
+                }
                 fout<<"\t标识符\n";
             }
         }
     }
 
-    fout.close();
-    return 0;
+    return fout.str();
+}
+
+std::string solution::compressCode(const std::string &s){
+    std::string::size_type len=s.length();
+        std::string ret=" ";// 防止越界
+        int flag=0;// 0正常，1在//里，2在/*里，3在"里，4在'里
+        for(std::string::size_type i=0;i<len;++i){
+            if(flag==0){
+                if(s[i]=='\r') continue;// 拒绝正常情况的所有\r
+                else if(s[i]=='#'){
+                    ret+=s[i];
+                    for(++i;i<len && s[i]!='\n';++i){
+                        if(!isspace(s[i])) ret+=s[i];
+                    }
+                    if(i!=len-1)
+                        ret+='\n';
+                }
+                else if(isspace(s[i])){
+                    if(!isalnum(*(--ret.end())) ||(i!=len-1 && !isalnum(s[i+1])))
+                        continue;
+                    else ret+=s[i];
+                }
+                else if(s[i]=='/'){
+                    if(i==len-1){
+                        ret+=s[i];
+                    }
+                    else if(s[i+1]=='/'){
+                        ++i;
+                        flag=1;
+                    }
+                    else if(s[i+1]=='*'){
+                        ++i;
+                        flag=2;
+                    }
+                    else{
+                        ret+=s[i];
+                    }
+                }
+                else if(s[i]=='\"'){
+                    ret+=s[i];
+                    flag=3;
+                }
+                else if(s[i]=='\''){
+                    ret+=s[i];
+                    flag=4;
+                }
+                else ret+=s[i];
+            }
+
+            else if(flag==1){
+                if(s[i]=='\n')
+                    flag=0;
+            }
+
+            else if(flag==2){
+                if(i<len-1 && s[i]=='*' && s[i+1]=='/'){
+                    ++i;
+                    flag=0;
+                }
+            }
+
+            else if(flag==3){
+                ret+=s[i];
+                if(s[i]=='\"' && s[i-1]!='\\'){
+                    flag=0;
+                }
+            }
+            else if(flag==4){
+                ret+=s[i];
+                if(s[i]=='\'' && s[i-1]!='\\'){
+                    flag=0;
+                }
+            }
+        }
+        return ret.substr(1,ret.length()-1);
 }
