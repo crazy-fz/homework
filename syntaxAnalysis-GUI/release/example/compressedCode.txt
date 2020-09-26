@@ -1,0 +1,2 @@
+#include<bits/stdc++.h>
+using namespace std;int main(){char c='\n';char ch='c';double f=-5.3e-5;int a=0xAef;string str="abc\n \\ 中文";a=1+1;int len=str.length();for(int i=0;i<len;++i)cout<<str[i];return 0;}
